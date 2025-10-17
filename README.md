@@ -1,1 +1,0 @@
-# KVadym-del.github.io
