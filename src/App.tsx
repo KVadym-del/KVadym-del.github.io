@@ -1,109 +1,108 @@
-import "./App.css";
+import { createSignal, onCleanup, onMount, Show } from "solid-js";
+import { Header } from "./components/Header";
+import { Hero } from "./components/Hero";
+import { About } from "./components/About";
+import { Projects } from "./components/Projects";
+import { Footer } from "./components/Footer";
+import { ProjectOverlay } from "./components/ProjectOverlay";
+import { ProjectCard } from "./components/ProjectCard";
+import {
+  siteMetadata,
+  heroContent,
+  aboutContent,
+  navigationLinks,
+} from "./data/site";
+import { projects } from "./data/projects";
+import type { Project } from "./types";
+import { lockScroll, unlockScroll } from "./utils/dom";
+import "./styles/globals.css";
 
+/**
+ * Main App component
+ * Orchestrates the portfolio layout and manages project overlay state
+ */
 function App() {
+  const [expandedProject, setExpandedProject] = createSignal<Project | null>(
+    null,
+  );
+  const [isOverlayOpen, setIsOverlayOpen] = createSignal(false);
+
+  /**
+   * Open the overlay for a specific project
+   */
+  const openProjectOverlay = (project: Project) => {
+    if (!project.details) return;
+
+    setExpandedProject(project);
+    setIsOverlayOpen(true);
+    lockScroll();
+  };
+
+  /**
+   * Close the project overlay
+   */
+  const closeProjectOverlay = () => {
+    setExpandedProject(null);
+    setIsOverlayOpen(false);
+    unlockScroll();
+  };
+
+  /**
+   * Handle keyboard events for closing overlay
+   */
+  onMount(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOverlayOpen()) {
+        e.preventDefault();
+        closeProjectOverlay();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    onCleanup(() => {
+      window.removeEventListener("keydown", handleKeyDown);
+      unlockScroll();
+    });
+  });
+
   return (
-    <div class="app">
-      <header class="header">
-        <nav class="nav">
-          <h1 class="logo">BobTheDestroyer</h1>
-          <div class="nav-links">
-            <a href="#about">About</a>
-            <a href="#projects">Projects</a>
-          </div>
-        </nav>
-      </header>
+    <>
+      <Header siteName={siteMetadata.name} links={navigationLinks} />
 
-      <main class="main">
-        <section class="hero">
-          <div class="hero-content">
-            <h1 class="hero-title">
-              Hi, I'm <span class="highlight">Your Name</span>
-            </h1>
-            <p class="hero-subtitle">Your Professional Title Here</p>
-            <p class="hero-description">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-            <div class="hero-buttons">
-              <a href="#projects" class="btn btn-primary">
-                View My Work
-              </a>
-              <a href="#about" class="btn btn-secondary">
-                Learn More
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <section id="about" class="section">
-          <h2 class="section-title">About Me</h2>
-          <div class="about-content">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim
-              ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-              aliquip ex ea commodo consequat.
-            </p>
-          </div>
-        </section>
-
-        <section id="projects" class="section">
-          <h2 class="section-title">Featured Projects</h2>
-          <div class="projects-grid">
-            <div class="project-card">
-              <div class="project-header">
-                <h3>Project Title One</h3>
-                <span class="project-status">In Progress</span>
-              </div>
-              <p class="project-description">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-              <div class="project-tags">
-                <span class="tag">Tag 1</span>
-                <span class="tag">Tag 2</span>
-                <span class="tag">Tag 3</span>
-              </div>
-            </div>
-
-            <div class="project-card">
-              <div class="project-header">
-                <h3>Project Title Two</h3>
-                <span class="project-status completed">Completed</span>
-              </div>
-              <p class="project-description">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-              <div class="project-tags">
-                <span class="tag">Tag 1</span>
-                <span class="tag">Tag 2</span>
-                <span class="tag">Tag 3</span>
-              </div>
-            </div>
-
-            <div class="project-card">
-              <div class="project-header">
-                <h3>Project Title Three</h3>
-                <span class="project-status">Planning</span>
-              </div>
-              <p class="project-description">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-              <div class="project-tags">
-                <span class="tag">Tag 1</span>
-                <span class="tag">Tag 2</span>
-                <span class="tag">Tag 3</span>
-              </div>
-            </div>
-          </div>
-        </section>
+      <main
+        style={{
+          flex: "1",
+          width: "100%",
+          position: "relative",
+          "z-index": "1",
+        }}
+      >
+        <div
+          style={{
+            "max-width": "1400px",
+            margin: "0 auto",
+            padding: "clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem)",
+          }}
+        >
+          <Hero content={heroContent} />
+          <About content={aboutContent} />
+          <Projects
+            projects={projects}
+            onProjectClick={openProjectOverlay}
+            expandedProjectId={undefined}
+          />
+        </div>
       </main>
 
-      <footer class="footer">
-        <p>&copy; 2025 Your Name. All rights reserved.</p>
-      </footer>
-    </div>
+      <Footer metadata={siteMetadata} />
+
+      <ProjectOverlay isOpen={isOverlayOpen()} onClose={closeProjectOverlay}>
+        <Show when={expandedProject()}>
+          {(project) => <ProjectCard project={project()} expanded={true} />}
+        </Show>
+      </ProjectOverlay>
+    </>
   );
 }
 

@@ -1,0 +1,38 @@
+.footer {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+}
+
+.copyright {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 2rem 1.5rem;
+  }
+
+  .copyright {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 2rem 1rem;
+  }
+
+  .copyright {
+    font-size: 0.9rem;
+  }
+}
