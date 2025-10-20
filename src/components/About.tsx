@@ -1,5 +1,6 @@
-import type { AboutContent } from '../types';
-import styles from './About.module.css';
+import type { AboutContent } from "../types";
+import styles from "./About.module.css";
+import sectionStyles from "../styles/section.module.css";
 
 interface AboutProps {
   content: AboutContent;
@@ -10,8 +11,12 @@ interface AboutProps {
  */
 export function About(props: AboutProps) {
   return (
-    <section id="about" class={styles.section} aria-labelledby="about-title">
-      <h2 id="about-title" class={styles.sectionTitle}>
+    <section
+      id="about"
+      class={sectionStyles.section}
+      aria-labelledby="about-title"
+    >
+      <h2 id="about-title" class={sectionStyles.sectionTitle}>
         About Me
       </h2>
       <div class={styles.aboutContent}>
